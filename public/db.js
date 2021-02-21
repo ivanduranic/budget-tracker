@@ -1,64 +1,52 @@
-const indexedDB =
-  window.indexedDB ||
-  window.mozIndexedDB ||
-  window.webkitIndexedDB ||
-  window.msIndexedDB ||
-  window.shimIndexedDB;
-
 let db;
 const request = indexedDB.open("budget", 1);
 
-request.onupgradeneeded = ({ target }) => {
-    let db = target.result;
-    db.createObjectStore("pending", { autoIncrement: true });
-  };
+request.onupgradeneeded = (event)=>{
+  const db = event.target.result;
+  db.createObjectStore("pending", { autoIncrement: true });
+}
 
-  request.onsuccess = ({ target }) => {
-    db = target.result;
-  
-    if (navigator.onLine) {
-      checkDatabase();
-    }
-  };
-
-  request.onerror = function (event) {
-    console.log("Woops! " + event.target.errorCode);
-  };
-
-  function saveRecord(record) {
-    const transaction = db.transaction(["pending"], "readwrite");
-    const store = transaction.objectStore("pending");
-  
-    store.add(record);
+request.onsuccess = (event)=>{
+  db = event.target.result;
+  if(navigator.onLine) {
+    checkDatabase();
   }
+}
 
-  function checkDatabase() {
-    const transaction = db.transaction(["pending"], "readwrite");
-    const store = transaction.objectStore("pending");
-    const getAll = store.getAll();
+request.onerror = (event)=>{
+  console.log('Found error: ' + event.target.errorCode);
+}
 
-    getAll.onsuccess = function () {
-        if (getAll.result.length > 0) {
-          fetch("/api/transaction/bulk", {
-            method: "POST",
-            body: JSON.stringify(getAll.result),
-            headers: {
-              Accept: "application/json, text/plain, */*",
-              "Content-Type": "application/json",
-            },
-          })
-            .then((response) => {
-              return response.json();
-            })
-            .then(() => {
-              // delete records if success is reached
-              const transaction = db.transaction(["pending"], "readwrite");
-              const store = transaction.objectStore("pending");
-              store.clear();
-            });
+const saveRecord = (record)=>{
+  const transaction = db.transaction(["pending"], "readwrite");
+  const pendingStore = transaction.objectStore("pending");
+  pendingStore.add(record);
+}
+
+const checkDatabase = ()=>{
+  const transaction = db.transaction(["pending"], "readwrite");
+  const pendingStore = transaction.objectStore("pending");
+  const getAll = pendingStore.getAll();
+
+  getAll.onsuccess = () =>{
+    if(getAll.result.length > 0){
+      fetch("/api/transaction/bulk", {
+        method: "POST",
+        body: JSON.stringify(getAll.result),
+        headers:{
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json"
         }
-      };
+      })
+      .then(response => response.json())
+      .then(() => {
+        const transaction = db.transaction(["pending"], "readwrite");
+        const pendingStore = transaction.objectStore("pending");
+        pendingStore.clear();
+        location.reload();
+      });
     }
-    
-    // listen for app reverting to online
-    window.addEventListener("online", checkDatabase);
+  }
+}
+
+window.addEventListener("online", checkDatabase);
