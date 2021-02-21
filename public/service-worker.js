@@ -3,10 +3,13 @@ const DATA_CACHE_NAME = "data-cache-v1";
 
 var urlsToCache = [
   "/",
+  "index.html",
   "/db.js",
   "/index.js",
-  "/api/transaction",
+  "/manifest.webmanifest",
   "/styles.css",
+  "/models/transaction.js",
+  "/routes/api.js",
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
 ];
