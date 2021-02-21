@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const MONGODB_URI =
-  "mongodb+srv://dbUser:Wanderlei@1@cluster0.n6f9n.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+  "mongodb+srv://dbUser:Wanderlei@1@cluster0.n6f9n.mongodb.net/Budget?retryWrites=true&w=majority";
 
 mongoose.connect(
   process.env.MONGODB_URI || "mongodb://localhost/budget-tracker",
