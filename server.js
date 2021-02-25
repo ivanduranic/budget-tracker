@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 const MONGODB_URI =
-  "mongodb+srv://ivanduranic:Wanderlei@1@cluster0.gljok.mongodb.net/Transaction?retryWrites=true&w=majority";
+  "mongodb+srv://ivanduranic:<password>@cluster0.gljok.mongodb.net/Transaction?retryWrites=true&w=majority";
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/budget", {
   useNewUrlParser: true,
